@@ -1,0 +1,6 @@
+.github/java-upgrade/
+data/
+*.log
+.DS_Store
+.idea/
+.vscode/

@@ -1,0 +1,63 @@
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Entries</h2>
+    <button class="btn btn-primary" (click)="openCreate()">+ Nuovo</button>
+  </div>
+
+  <div *ngIf="showForm" class="card mb-3 p-3">
+    <h5>{{ editMode ? 'Modifica' : 'Nuovo' }} Entry</h5>
+    <div class="mb-2">
+      <label>Data</label>
+      <input type="date" class="form-control" [(ngModel)]="formData.date" />
+    </div>
+    <div class="mb-2">
+      <label>Status</label>
+      <select class="form-control" [(ngModel)]="formData.status">
+        <option value="PENDING">PENDING</option>
+        <option value="CONFIRMED">CONFIRMED</option>
+        <option value="CANCELLED">CANCELLED</option>
+      </select>
+    </div>
+    <div class="mb-2">
+      <label>Nota</label>
+      <input class="form-control" [(ngModel)]="formData.note" />
+    </div>
+    <div class="mb-2">
+      <label>Member</label>
+      <select class="form-control" [(ngModel)]="formData.memberId">
+        <option [ngValue]="0" disabled>Seleziona member</option>
+        <option *ngFor="let m of members" [ngValue]="m.id">{{ m.name }}</option>
+      </select>
+    </div>
+    <div class="d-flex gap-2">
+      <button class="btn btn-success" (click)="save()">Salva</button>
+      <button class="btn btn-secondary" (click)="showForm = false">Annulla</button>
+    </div>
+  </div>
+
+  <table class="table table-bordered table-hover">
+    <thead class="table-dark">
+      <tr>
+        <th>ID</th>
+        <th>Data</th>
+        <th>Status</th>
+        <th>Nota</th>
+        <th>Member</th>
+        <th>Azioni</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let e of entries">
+        <td>{{ e.id }}</td>
+        <td>{{ e.date }}</td>
+        <td>{{ e.status }}</td>
+        <td>{{ e.note || '-' }}</td>
+        <td>{{ e.memberName }}</td>
+        <td>
+          <button class="btn btn-sm btn-warning me-1" (click)="openEdit(e)">Modifica</button>
+          <button class="btn btn-sm btn-danger" (click)="delete(e.id!)">Elimina</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

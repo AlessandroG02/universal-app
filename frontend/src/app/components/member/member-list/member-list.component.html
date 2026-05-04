@@ -1,0 +1,55 @@
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Members</h2>
+    <button class="btn btn-primary" (click)="openCreate()">+ Nuovo</button>
+  </div>
+
+  <div *ngIf="showForm" class="card mb-3 p-3">
+    <h5>{{ editMode ? 'Modifica' : 'Nuovo' }} Member</h5>
+    <div class="mb-2">
+      <label>Nome</label>
+      <input class="form-control" [(ngModel)]="formData.name" />
+    </div>
+    <div class="mb-2">
+      <label>Email</label>
+      <input class="form-control" [(ngModel)]="formData.email" />
+    </div>
+    <div class="mb-2">
+      <label>Manager</label>
+      <select class="form-control" [(ngModel)]="formData.managerId">
+        <option [ngValue]="0" disabled>Seleziona manager</option>
+        <option *ngFor="let m of managers" [ngValue]="m.id">{{ m.name }}</option>
+      </select>
+    </div>
+    <div class="d-flex gap-2">
+      <button class="btn btn-success" (click)="save()">Salva</button>
+      <button class="btn btn-secondary" (click)="showForm = false">Annulla</button>
+    </div>
+  </div>
+
+  <table class="table table-bordered table-hover">
+    <thead class="table-dark">
+      <tr>
+        <th>ID</th>
+        <th>Nome</th>
+        <th>Email</th>
+        <th>Manager</th>
+        <th>Entry</th>
+        <th>Azioni</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let m of members">
+        <td>{{ m.id }}</td>
+        <td>{{ m.name }}</td>
+        <td>{{ m.email || '-' }}</td>
+        <td>{{ m.managerName }}</td>
+        <td>{{ m.entryCount }}</td>
+        <td>
+          <button class="btn btn-sm btn-warning me-1" (click)="openEdit(m)">Modifica</button>
+          <button class="btn btn-sm btn-danger" (click)="delete(m.id!)">Elimina</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
