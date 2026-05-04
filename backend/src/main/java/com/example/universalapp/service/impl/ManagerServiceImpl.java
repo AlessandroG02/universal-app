@@ -5,7 +5,9 @@ import com.example.universalapp.model.Manager;
 import com.example.universalapp.repository.ManagerRepository;
 import com.example.universalapp.service.ManagerService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -26,7 +28,7 @@ public class ManagerServiceImpl implements ManagerService {
     @Override
     public ManagerDTO findById(Long id) {
         Manager m = managerRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Manager not found: " + id));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Manager not found: " + id));
         return toDTO(m);
     }
 
@@ -39,7 +41,7 @@ public class ManagerServiceImpl implements ManagerService {
     @Override
     public ManagerDTO update(Long id, ManagerDTO dto) {
         Manager m = managerRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Manager not found: " + id));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Manager not found: " + id));
         m.setName(dto.getName());
         m.setEmail(dto.getEmail());
         m.setPhone(dto.getPhone());
@@ -48,6 +50,9 @@ public class ManagerServiceImpl implements ManagerService {
 
     @Override
     public void delete(Long id) {
+        if (!managerRepository.existsById(id)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Manager not found: " + id);
+        }
         managerRepository.deleteById(id);
     }
 

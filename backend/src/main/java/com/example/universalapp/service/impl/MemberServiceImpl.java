@@ -7,7 +7,9 @@ import com.example.universalapp.repository.ManagerRepository;
 import com.example.universalapp.repository.MemberRepository;
 import com.example.universalapp.service.MemberService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -37,7 +39,7 @@ public class MemberServiceImpl implements MemberService {
     @Override
     public MemberDTO findById(Long id) {
         Member m = memberRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Member not found: " + id));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Member not found: " + id));
         return toDTO(m);
     }
 
@@ -50,12 +52,12 @@ public class MemberServiceImpl implements MemberService {
     @Override
     public MemberDTO update(Long id, MemberDTO dto) {
         Member m = memberRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Member not found: " + id));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Member not found: " + id));
         m.setName(dto.getName());
         m.setEmail(dto.getEmail());
         if (dto.getManagerId() != null) {
             Manager mgr = managerRepository.findById(dto.getManagerId())
-                    .orElseThrow(() -> new RuntimeException("Manager not found: " + dto.getManagerId()));
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Manager not found: " + dto.getManagerId()));
             m.setManager(mgr);
         }
         return toDTO(memberRepository.save(m));
@@ -63,6 +65,9 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     public void delete(Long id) {
+        if (!memberRepository.existsById(id)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Member not found: " + id);
+        }
         memberRepository.deleteById(id);
     }
 
@@ -85,7 +90,7 @@ public class MemberServiceImpl implements MemberService {
         m.setEmail(dto.getEmail());
         if (dto.getManagerId() != null) {
             Manager mgr = managerRepository.findById(dto.getManagerId())
-                    .orElseThrow(() -> new RuntimeException("Manager not found: " + dto.getManagerId()));
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Manager not found: " + dto.getManagerId()));
             m.setManager(mgr);
         }
         return m;

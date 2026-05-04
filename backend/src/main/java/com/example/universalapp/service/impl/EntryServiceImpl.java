@@ -7,7 +7,9 @@ import com.example.universalapp.repository.EntryRepository;
 import com.example.universalapp.repository.MemberRepository;
 import com.example.universalapp.service.EntryService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -37,7 +39,7 @@ public class EntryServiceImpl implements EntryService {
     @Override
     public EntryDTO findById(Long id) {
         Entry e = entryRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Entry not found: " + id));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Entry not found: " + id));
         return toDTO(e);
     }
 
@@ -50,13 +52,13 @@ public class EntryServiceImpl implements EntryService {
     @Override
     public EntryDTO update(Long id, EntryDTO dto) {
         Entry e = entryRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Entry not found: " + id));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Entry not found: " + id));
         e.setDate(dto.getDate());
         e.setStatus(dto.getStatus());
         e.setNote(dto.getNote());
         if (dto.getMemberId() != null) {
             Member m = memberRepository.findById(dto.getMemberId())
-                    .orElseThrow(() -> new RuntimeException("Member not found: " + dto.getMemberId()));
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Member not found: " + dto.getMemberId()));
             e.setMember(m);
         }
         return toDTO(entryRepository.save(e));
@@ -64,6 +66,9 @@ public class EntryServiceImpl implements EntryService {
 
     @Override
     public void delete(Long id) {
+        if (!entryRepository.existsById(id)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Entry not found: " + id);
+        }
         entryRepository.deleteById(id);
     }
 
@@ -87,7 +92,7 @@ public class EntryServiceImpl implements EntryService {
         e.setNote(dto.getNote());
         if (dto.getMemberId() != null) {
             Member m = memberRepository.findById(dto.getMemberId())
-                    .orElseThrow(() -> new RuntimeException("Member not found: " + dto.getMemberId()));
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Member not found: " + dto.getMemberId()));
             e.setMember(m);
         }
         return e;
