@@ -1,0 +1,85 @@
+COME ADATTARE IL PROGETTO A UN ALTRO DOMINIO
+============================================
+
+La struttura e' fissa: tre entita' con relazione 1:N -> 1:N.
+  Manager (1) ---< Member (N) ---< Entry (N)
+
+Esempio "libreria":
+  Manager -> Library    (campi: name, address)
+  Member  -> Book       (campi: title, author, isbn, year, libraryId)
+  Entry   -> Loan       (campi: borrowDate, returnDate, status, bookId)
+
+
+BACKEND  (backend/src/main/java/com/example/universalapp/)
+----------------------------------------------------------
+
+1) model/
+   - Rinominare la classe (es. Manager.java -> Library.java).
+   - Cambiare @Table(name = "managers") -> @Table(name = "libraries").
+   - Aggiornare i campi e le validazioni (@NotBlank, @Email, lunghezze).
+   - Aggiornare le relazioni @OneToMany / @ManyToOne nelle altre entita'
+     (mappedBy, @JoinColumn) coerentemente con i nuovi nomi.
+
+2) dto/
+   - Rinominare la classe e i campi corrispondenti.
+   - Mantenere @JsonProperty(access = READ_ONLY) sui campi auto/derivati
+     (id, createdAt, contatori) per non farli accettare in POST/PUT.
+
+3) repository/
+   - Rinominare l'interfaccia.
+   - Adattare i query method (es. findByEmail -> findByIsbn,
+     findByManagerId -> findByLibraryId).
+
+4) service/ e service/impl/
+   - Rinominare interfacce e impl.
+   - Aggiornare i metodi di mapping toEntity / toDTO ai nuovi campi.
+   - Aggiornare i messaggi delle ResponseStatusException.
+
+5) controller/
+   - Rinominare la classe.
+   - Cambiare @RequestMapping("/api/managers") -> "/api/libraries".
+   - Aggiornare path delle sotto-rotte (es. /by-manager -> /by-library).
+   - Aggiornare il @Tag di Swagger.
+
+6) resources/data.sql
+   - Aggiornare nomi tabella e valori INSERT per il seed iniziale.
+
+7) resources/application.properties
+   - Eventualmente cambiare il nome del file H2
+     (spring.datasource.url=jdbc:h2:file:./data/<nuovo-nome>).
+
+
+FRONTEND  (frontend/src/app/)
+-----------------------------
+
+1) models/
+   - Rinominare file e interfaccia (es. manager.model.ts -> library.model.ts).
+   - Aggiornare i campi e i loro tipi.
+
+2) services/
+   - Rinominare file e classe.
+   - Aggiornare apiUrl al nuovo path REST.
+   - Rinominare i metodi specifici (es. getByManager -> getByLibrary).
+
+3) components/<dominio>/
+   - Rinominare cartella, file .ts e .html.
+   - Aggiornare selector, templateUrl, le iniezioni dei service.
+   - Aggiornare i campi mostrati in tabella e nei form.
+
+4) app-routing.module.ts
+   - Aggiornare i path delle route e le import dei component.
+
+5) app.module.ts
+   - Aggiornare imports e declarations con i nuovi component.
+
+6) components/navbar/navbar.component.html
+   - Rinominare le voci di menu (Managers/Members/Entries -> nuovi nomi).
+
+
+ALTRO
+-----
+- Rivedere i valori dello status di Entry (PENDING/CONFIRMED/CANCELLED)
+  in base al nuovo dominio (es. BORROWED/RETURNED/OVERDUE per i Loan).
+- Cancellare la cartella data/ prima del primo riavvio se vuoi un DB pulito
+  (altrimenti restano gli schemi vecchi creati da Hibernate update).
+- Aggiornare l'environment Angular se cambi porta o context-path del backend.
